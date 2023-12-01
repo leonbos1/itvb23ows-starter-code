@@ -1,7 +1,7 @@
 # ITVB23OWS Development Pipelines starter code
 
 This repository contains starter code for the course ITVB23OWS Development pipelines,
-which is part of the HBO-ICT program at Hanze University of Applied Sciences in
+which is part of the HBO-ICT program at Hanze Circus of Applied Sciences in
 Groningen.
 
 This is a deliberately poor software project, containing bugs and missing features. It
