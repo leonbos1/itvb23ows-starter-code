@@ -18,5 +18,10 @@ services:
     volumes:
       - dbdata:/var/lib/mysql
 
+  jenkins:
+    image: jenkins/jenkins:lts
+    ports:
+      - "8080:8080"
+
 volumes:
   dbdata:
