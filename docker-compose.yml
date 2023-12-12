@@ -2,26 +2,36 @@ version: '3'
 
 services:
   web:
-    build: .
+    build: ./application/
+    container_name: hive-application
     ports:
       - "80:80"
     depends_on:
-      - db
+      - database
 
-  db:
-    image: mysql:5.7
+  database:
+    build: ./database/
+    container_name: hive-database
     environment:
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: mysecretpassword
       MYSQL_DATABASE: hive
     ports:
-      - "3306:3306"
+    - "3306:3306"
     volumes:
-      - dbdata:/var/lib/mysql
+      - hive-volume:/var/lib/mysql
 
   jenkins:
-    image: jenkins/jenkins:lts
+    build: ./jenkins/
+    image: jenkins
+    container_name: hive-jenkins
     ports:
       - "8080:8080"
 
+  sonarqube:
+    image: sonarqube:community
+    container_name: hive-sonarqube
+    ports:
+      - "9000:9000"
+
 volumes:
-  dbdata:
+  hive-volume:
