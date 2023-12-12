@@ -1,16 +1,14 @@
 pipeline {
-    agent any
+    agent { lavel 'linux' }
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+    }
     stages {
-        stage ('Build') {
+        stage('Scan') {
             steps {
-                echo 'Building...'
-                sh 'php -v'
-            }
-        }
-
-        stage ('Deploy') {
-            steps {
-                echo 'Deploying...'
+                withSonarQubeEnv(installationName: 'SonarQube') {
+                    sh '.mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar'
+                }
             }
         }
     }
