@@ -1,15 +1,12 @@
 pipeline {
-    agent any
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '5'))
-    }
-    stages {
-        stage('Scan') {
+    agent { label '!windows' }
+        stage('SonarQube') {
             steps {
-                withSonarQubeEnv('sq1') {
-                    sh 'sonar-scanner -Dsonar.projectKey=hive -Dsonar.sources=./application'
+                script { scannerHome = tool 'Hive-scanner' }
+                withSonarQubeEnv('SonarQube') {
+                    sh "${scannerHome}/bin/sonar-scanner
+                    -Dsonar.projectKey=[key]"
                 }
             }
-        }
     }
 }
