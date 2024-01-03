@@ -1,16 +1,14 @@
 pipeline {
-    agent any
+    agent { label '!windows' }
     stages {
-        stage ('Build') {
+        stage('SonarQube') {
             steps {
-                echo 'Building...'
-                sh 'php -v'
-            }
-        }
-
-        stage ('Deploy') {
-            steps {
-                echo 'Deploying...'
+                script { scannerHome = tool 'Hive-scanner' }
+                withSonarQubeEnv(installationName: 'sq1') {
+                    sh "${scannerHome}/bin/sonar-scanner \
+                    -D sonar.projectKey=sq1 \
+                    -D sonar.host.url=http://sonarqube:9000/"
+                }
             }
         }
     }
