@@ -7,7 +7,7 @@ pipeline {
                 withSonarQubeEnv(installationName: 'sq1') {
                     sh "${scannerHome}/bin/sonar-scanner \
                     -D sonar.projectKey=sq1 \
-                    -D sonar.host.url=hive-sonarqube"
+                    -D sonar.host.url=http://localhost:9000/"
                 }
             }
         }
