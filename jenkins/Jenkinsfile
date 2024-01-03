@@ -4,8 +4,8 @@ pipeline {
         stage('SonarQube') {
             steps {
                 script { scannerHome = tool 'Hive-scanner' }
-                withSonarQubeEnv('SonarQube') {
-                    sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=[key]"
+                withSonarQubeEnv('sq1') {
+                    sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=sq1"
                 }
             }
         }
