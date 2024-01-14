@@ -1,6 +1,5 @@
 window.onload = () => {
     const fromDropdown = document.getElementById('from-dropdown');
-    const toDropdown = document.getElementById('to-dropdown');
 
     fromDropdown.addEventListener('change', getPossibleMoves);
 

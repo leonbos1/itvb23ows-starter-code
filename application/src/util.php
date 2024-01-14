@@ -1,17 +1,23 @@
 <?php
 
+include_once dirname(__FILE__) . '/rules/moveHelper.php';
+
 $GLOBALS['OFFSETS'] = [[0, 1], [0, -1], [1, 0], [-1, 0], [-1, 1], [1, -1]];
 
 function isNeighbour($a, $b)
 {
     $a = explode(',', $a);
     $b = explode(',', $b);
-    if ($a[0] == $b[0] && abs($a[1] - $b[1]) == 1)
-        return true;
-    if ($a[1] == $b[1] && abs($a[0] - $b[0]) == 1)
-        return true;
-    if ($a[0] + $a[1] == $b[0] + $b[1])
-        return true;
+
+    $dx = $a[0] - $b[0];
+    $dy = $a[1] - $b[1];
+
+    foreach ($GLOBALS['OFFSETS'] as $offset) {
+        if ($dx == $offset[0] && $dy == $offset[1]) {
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -23,11 +29,15 @@ function isNeighbour($a, $b)
  * @param array $board The current board state
  * @return bool True if the position has a neighbour, false otherwise
  */
-function hasNeighBour($position, $board)
+function hasNeighbour($position, $board, $exclude = [])
 {
     foreach (array_keys($board) as $board_position) {
-        if (isNeighbour($position, $board_position))
+        if (in_array($board_position, $exclude)) {
+            continue;
+        }
+        if (isNeighbour($position, $board_position)) {
             return true;
+        }
     }
 
     return false;
@@ -66,26 +76,25 @@ function slide($board, $from, $to)
         return false;
     if (!isNeighbour($from, $to))
         return false;
-
     $b = explode(',', $to);
     $common = [];
-
     foreach ($GLOBALS['OFFSETS'] as $pq) {
         $p = $b[0] + $pq[0];
         $q = $b[1] + $pq[1];
-        if (isNeighbour($from, $p . "," . $q) && array_key_exists($p . "," . $q, $board))
+        if (isNeighbour($from, $p . "," . $q))
             $common[] = $p . "," . $q;
     }
-
     if (!$board[$common[0]] && !$board[$common[1]] && !$board[$from] && !$board[$to])
         return false;
-
     return min(len($board[$common[0]]), len($board[$common[1]])) <= max(len($board[$from]), len($board[$to]));
 }
 
 
 function len($tileStack): int
 {
+    if (!$tileStack)
+        return 0;
+
     return count($tileStack);
 }
 
@@ -117,15 +126,17 @@ function getNeighbours($coordinate)
 /**
  * Get the positions of all the neighbours of a given coordinate that have the same color.
  */
-function getNeighboursSameColor($coordinate, $color)
+function getNeighboursSameColor($board, $player, $coordinate)
 {
-    $neighbours = [];
-    foreach (getNeighbours($coordinate) as $neighbour) {
-        if (isset($GLOBALS['board'][$neighbour]) && $GLOBALS['board'][$neighbour][count($GLOBALS['board'][$neighbour]) - 1][0] == $color) {
-            $neighbours[] = $neighbour;
-        }
+    $neighbours = getNeighbours($coordinate);
+    $neighboursSameColor = [];
+
+    foreach ($neighbours as $neighbour) {
+        if (isset($board[$neighbour]) && $board[$neighbour][count($board[$neighbour]) - 1][0] == $player)
+            $neighboursSameColor[] = $neighbour;
     }
-    return $neighbours;
+
+    return $neighboursSameColor;
 }
 
 
@@ -137,8 +148,9 @@ function getNeighboursSameColor($coordinate, $color)
  * @param string $to The position to move to
  * @return bool True if the hive is split, false otherwise
  */
-function hiveIsSplit($board, $from, $to)
+function hiveWillSplit($board, $from, $to)
 {
+    return false;
     $all = array_keys($board);
     $queue = [array_shift($all)];
     while ($queue) {
@@ -158,5 +170,3 @@ function hiveIsSplit($board, $from, $to)
     }
     return false;
 }
-
-?>

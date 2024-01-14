@@ -10,21 +10,33 @@ function getPossiblePlacements($board, $player)
     }
 
     if (isSecondMove($board)) {
-        $pos = array_keys($board)[0];
-        $pq = explode(',', $pos);
-        return [$pq[0] . ',' . ($pq[1] + 1), $pq[0] . ',' . ($pq[1] - 1), ($pq[0] + 1) . ',' . $pq[1], ($pq[0] - 1) . ',' . $pq[1]];
+        return ['0,1', '1,0', '-1,0', '0,-1', '1,-1', '-1,1'];
     }
 
     $to = [];
-    foreach (array_keys($board) as $pos) {
-        $neighbours = getNeighbours($pos);
 
-        foreach ($neighbours as $neighbour) {
-            if (canPlayPiece($neighbour, $board)) {
-                $to[] = $neighbour;
-            }
+    $userTiles = [];
+
+    foreach ($board as $pos => $tile) {
+        if ($tile[0][0] == $player) {
+            $userTiles[] = $pos;
         }
     }
+
+    $allNeighbours = [];
+    foreach ($userTiles as $tile) {
+        $neighbours = getNeighbours($tile);
+        $allNeighbours = array_merge($allNeighbours, $neighbours);
+    }
+
+    $allNeighbours = array_unique($allNeighbours);
+
+    foreach ($allNeighbours as $neighbour) {
+        if (!isset($board[$neighbour]) && neighboursAreSameColor($player, $neighbour, $board)) {
+            $to[] = $neighbour;
+        }
+    }
+
     return $to;
 }
 

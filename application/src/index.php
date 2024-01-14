@@ -9,6 +9,7 @@ if (!isset($_SESSION['board'])) {
     exit(0);
 }
 $board = $_SESSION['board'];
+// $board = ['0,0' => [['0', 'Q']]];
 $player = $_SESSION['player'];
 $hand = $_SESSION['hand'];
 
