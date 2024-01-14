@@ -10,7 +10,8 @@ function set_state($state) {
     $_SESSION['board'] = $b;
     $_SESSION['player'] = $c;
 }
-
-return new mysqli('hive-database', 'root', 'mysecretpassword', 'hive');
-
+// development
+return new mysqli('localhost', 'root', 'mysecretpassword', 'hive');
+// containerized
+//return new mysqli('hive-database', 'root', 'mysecretpassword', 'hive');
 ?>

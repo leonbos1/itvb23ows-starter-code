@@ -2,7 +2,7 @@ version: '3'
 
 services:
   web:
-    build: ./application/
+    build: ./application/src
     container_name: hive-application
     ports:
       - "80:80"
