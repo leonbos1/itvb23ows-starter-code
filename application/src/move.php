@@ -22,6 +22,7 @@ elseif ($hand['Q'])
 
 else {
     $tile = array_pop($board[$from]);
+    unset($board[$from]);
 
     if (!hasNeighBour($to, $board))
         $_SESSION['error'] = "Move would split hive";
