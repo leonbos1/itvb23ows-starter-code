@@ -13,12 +13,19 @@ class Queen implements Insect
      */
     function getPossibleMoves($board, $from): array
     {
+        if (isBeetleBlocked($board, $from)) {
+            return [];
+        }
+
         $to = [];
+
         $neighbours = getNeighbours($from);
 
         foreach ($neighbours as $neighbour) {
             if (hasNeighBour($neighbour, $board, [$from]) && !isset($board[$neighbour])) {
-                $to[] = $neighbour;
+                if (!hiveWillSplit($board, $from, $neighbour)) {
+                    $to[] = $neighbour;
+                }
             }
         }
 

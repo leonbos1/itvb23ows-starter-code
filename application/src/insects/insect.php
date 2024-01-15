@@ -33,3 +33,8 @@ function getInsectInstance($insect_type): ?Insect
         return null;
     }
 }
+
+function isBeetleBlocked($board, $from)
+{
+    return isset($board[$from][1]);
+}
