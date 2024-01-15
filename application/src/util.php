@@ -140,6 +140,12 @@ function getNeighboursSameColor($board, $player, $coordinate)
 }
 
 
+function playerMustPlayQueen($piece, $board, $hand): bool
+{
+    return $piece != 'Q' && array_sum($hand) <= 8 && $hand['Q'];
+}
+
+
 /**
  * Checks if hive is split when a tile is moved.
  * 
