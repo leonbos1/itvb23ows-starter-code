@@ -2,7 +2,11 @@
 
 namespace insects;
 
-interface Insect
+abstract class Insect
 {
-    public function getPossibleMoves($board, $from);
+    public abstract function getPossibleMoves($board, $from);
+
+    public function isBlockedByBeetle($board, $from) {
+        return isset($board[$from]) && count($board[$from]) > 1;
+    }
 }

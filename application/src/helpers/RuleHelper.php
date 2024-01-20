@@ -181,7 +181,7 @@ class RuleHelper
             $tile = array_pop($board[$from]);
             unset($board[$from]);
 
-            if (isset($board[$to]) && self::isBeetle($tile)) {
+            if (isset($board[$to]) && !self::isBeetle($tile)) {
                 $_SESSION['error'] = "Tile is already taken";
             } elseif (!RuleHelper::hasNeighBour($to, $board) || RuleHelper::hiveWillSplit($board)) {
                 $_SESSION['error'] = "Move would split hive";

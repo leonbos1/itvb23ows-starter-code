@@ -5,10 +5,14 @@ namespace insects;
 use helpers\RuleHelper;
 use managers\GameManager;
 
-class Grasshopper implements Insect
+class Grasshopper extends Insect
 {
     public function getPossibleMoves($board, $from)
     {
+        if (self::isBlockedByBeetle($board, $from)) {
+            return [];
+        }
+        
         $fromExploded = explode(',', $from);
         $possibleMoves = [];
         $offsets = GameManager::$offsets;

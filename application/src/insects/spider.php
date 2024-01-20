@@ -6,10 +6,14 @@ use helpers\MoveHelper;
 use helpers\RuleHelper;
 use managers\GameManager;
 
-class Spider implements Insect
+class Spider extends Insect
 {
     public function getPossibleMoves($board, $from)
     {
+        if (self::isBlockedByBeetle($board, $from)) {
+            return [];
+        }
+        
         $visitedPositions = [];
         $lastVisitedPosition = null;
         $depth = 0;

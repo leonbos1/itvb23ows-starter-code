@@ -5,10 +5,14 @@ namespace insects;
 use helpers\RuleHelper;
 use managers\GameManager;
 
-class Ant implements Insect
+class Ant extends Insect
 {
     public function getPossibleMoves($board, $from)
     {
+        if (self::isBlockedByBeetle($board, $from)) {
+            return [];
+        }
+        
         unset($board[$from]);
 
         $visited = [];

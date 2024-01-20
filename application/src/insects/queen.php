@@ -5,7 +5,7 @@ namespace insects;
 use helpers\MoveHelper;
 use helpers\RuleHelper;
 
-class Queen implements Insect
+class Queen extends Insect
 {
     /**
      * The Queen can move 1 step per turn in any direction.
@@ -15,6 +15,10 @@ class Queen implements Insect
      */
     function getPossibleMoves($board, $from): array
     {
+        if (self::isBlockedByBeetle($board, $from)) {
+            return [];
+        }
+        
         $to = [];
         $neighbours = MoveHelper::getNeighbours($from);
 

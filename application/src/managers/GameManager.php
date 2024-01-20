@@ -72,7 +72,14 @@ class GameManager
 
         unset($board[$from]);
 
-        $board[$to] = [$tile];
+        if (!isset($board[$to])) {
+            $board[$to] = [$tile];
+        }
+        else {
+            $stackedTiles = count($board[$to]);
+
+            $board[$to][$stackedTiles+1] = $tile;
+        }
 
         self::setError();
         self::setBoard($board);
