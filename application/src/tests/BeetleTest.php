@@ -75,4 +75,27 @@ class BeetleTest extends TestCase
         $this->assertEquals('B', GameManager::getBoard()['-1,0'][0][1]);
         $this->assertEquals(0, GameManager::getBoard()['-1,0'][0][0]);
     }
+
+    public function testCanMoveWhenOnTop()
+    {
+        $this->gameManager->play('Q', '0,0');
+        $this->gameManager->play('Q', '1,0');
+        $this->gameManager->play('B', '-1,0');
+        $this->gameManager->play('A', '2,0');
+        $this->gameManager->move('-1,0', '0,-1');
+        $this->gameManager->play('A', '3,0');
+        $this->gameManager->move('0,-1','1,-1');
+        $this->gameManager->play('G', '4,0');
+        $this->gameManager->move('1,-1','1,0');
+        $this->gameManager->play('G', '5,0');
+        $this->gameManager->move('1,0','0,1');
+
+        $pieceOnBoard = count(GameManager::getBoard());
+
+        $this->assertEquals(7, $pieceOnBoard);
+        $this->assertEquals(1, GameManager::getPlayer());
+        $this->assertArrayHasKey('0,1', GameManager::getBoard());
+        $this->assertEquals('B', GameManager::getBoard()['0,1'][0][1]);
+        $this->assertEquals(0, GameManager::getBoard()['0,1'][0][0]);
+    }
 }

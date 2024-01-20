@@ -105,8 +105,13 @@ class RuleHelper
      */
     public static function hiveWillSplit($board)
     {
-        $all = array_keys($board);
-        $queue = [array_shift($all)];
+        $all = [];
+        foreach ($board as $position => $pieces) {
+            $all[$position] = count($pieces);
+        }
+
+        $queue = [array_key_first($all)];
+        $all[$queue[0]]--;
 
         while ($queue) {
             $next = explode(',', array_shift($queue));
@@ -117,14 +122,20 @@ class RuleHelper
 
                 $position = $p . "," . $q;
 
-                if (in_array($position, $all)) {
+                if (isset($all[$position]) && $all[$position] > 0) {
                     $queue[] = $position;
-                    $all = array_diff($all, [$position]);
+                    $all[$position]--;
                 }
             }
         }
 
-        return $all;
+        foreach ($all as $count) {
+            if ($count > 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 
@@ -179,7 +190,9 @@ class RuleHelper
             $_SESSION['error'] = "Queen bee is not played";
         else {
             $tile = array_pop($board[$from]);
-            unset($board[$from]);
+            if (count($board[$from]) == 0) {
+                unset($board[$from]);
+            }
 
             if (isset($board[$to]) && !self::isBeetle($tile)) {
                 $_SESSION['error'] = "Tile is already taken";

@@ -37,4 +37,19 @@ class QueenTest extends TestCase
             $this->assertContains($place, $actualPossibleMovements);
         }
     }
+
+    public function testSplitHiveMovement()
+    {
+        $this->gameManager->play('Q', '0,0');
+        $this->gameManager->play('Q', '1,0');
+        $this->gameManager->play('A', '-1,0');
+        $this->gameManager->play('A', '2,0');
+        $this->gameManager->move('0,0', '0,-1');
+
+        $this->assertArrayHasKey('0,0', GameManager::getBoard());
+        $this->assertArrayHasKey('1,0', GameManager::getBoard());
+        $this->assertArrayHasKey('-1,0', GameManager::getBoard());
+        $this->assertArrayHasKey('2,0', GameManager::getBoard());
+        $this->assertArrayNotHasKey('0,-1', GameManager::getBoard());
+    }
 }
