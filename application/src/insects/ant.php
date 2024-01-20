@@ -9,7 +9,6 @@ class Ant implements Insect
 {
     public function getPossibleMoves($board, $from)
     {
-        $board = GameManager::getBoard();
         unset($board[$from]);
 
         $visited = [];

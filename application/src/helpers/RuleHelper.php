@@ -4,6 +4,7 @@ namespace helpers;
 
 use insects\Grasshopper;
 use insects\Ant;
+use insects\Spider;
 use managers\GameManager;
 use helpers\MoveHelper;
 
@@ -193,7 +194,7 @@ class RuleHelper
                     $_SESSION['error'] = "Grasshopper cannot jump";
                 } else {
                     return true;
-                } 
+                }
             } elseif ($tile[1] == 'A') {
                 $ant = new Ant();
                 $validMoves = $ant->getPossibleMoves($board, $from);
@@ -202,8 +203,15 @@ class RuleHelper
                 } else {
                     return true;
                 }
-            }
-            else {
+            } elseif ($tile[1] == "S") {
+                $spider = new Spider();
+                $validMoves = $spider->getPossibleMoves($board, $from);
+                if (!in_array($to, $validMoves)) {
+                    $_SESSION['error'] = "Spider cannot move to this tile";
+                } else {
+                    return true;
+                }
+            } else {
                 return true;
             }
         }
