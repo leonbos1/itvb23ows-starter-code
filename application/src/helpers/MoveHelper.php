@@ -174,6 +174,64 @@ class MoveHelper
         return $to;
     }
 
+    public static function moveNotPossible()
+    {
+        $board = GameManager::getBoard();
+
+        if (count($board) == 0) {
+            return false;
+        }
+
+        $playerTiles = [];
+
+        foreach ($board as $position => $tiles) {
+            foreach ($tiles as $tile) {
+                if ($tile[0] == GameManager::getPlayer()) {
+                    $playerTiles[] = $position;
+                }
+            }
+        }
+
+        foreach ($playerTiles as $position) {
+            $insect = InsectHelper::getInsectInstance($board[$position][0][1]);
+            $possibleMoves = $insect->getPossibleMoves($board, $position);
+            if (count($possibleMoves) == 0) {
+                return true;
+            }
+        }
+    }
+
+    public static function playNotPossible()
+    {
+        $player = GameManager::getPlayer();
+
+        $hand = GameManager::getHand($player);
+
+        $tilesOnBoard = [];
+
+        foreach (GameManager::getBoard() as $position => $tiles) {
+            foreach ($tiles as $tile) {
+                if ($tile[0] == $player) {
+                    $tilesOnBoard[] = $position;
+                }
+            }
+        }
+
+        foreach ($hand as $piece => $count) {
+            if ($count > 0) {
+                foreach ($tilesOnBoard as $position) {
+                    $neighbours = MoveHelper::getNeighbours($position);
+
+                    foreach ($neighbours as $neighbour) {
+                        if (RuleHelper::isValidPlay($piece, $neighbour)) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Traces a path from a given starting coordinate to a specified depth along the boundary of the game board.
      * 

@@ -258,4 +258,15 @@ class RuleHelper
 
         return false;
     }
+
+    public static function hasToPass()
+    {
+        $board = GameManager::getBoard();
+
+        if (count($board) < 2) {
+            return false;
+        }
+
+        return MoveHelper::moveNotPossible() && MoveHelper::playNotPossible();
+    }
 }

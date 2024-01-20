@@ -18,7 +18,7 @@ class Queen extends Insect
         if (self::isBlockedByBeetle($board, $from)) {
             return [];
         }
-        
+
         $to = [];
         $neighbours = MoveHelper::getNeighbours($from);
 

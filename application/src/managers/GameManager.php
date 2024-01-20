@@ -3,9 +3,8 @@
 namespace managers;
 
 use base\IDataBaseManager;
-use helpers\InsectHelper;
-use helpers\MoveHelper;
 use helpers\RuleHelper;
+use helpers\WinHelper;
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -54,6 +53,10 @@ class GameManager
         $this->db->saveMove($piece, $to);
 
         $this->swapPlayers();
+
+        if (WinHelper::isGameOver()) {
+            $this->handleGameOver();
+        }
     }
 
     /**
@@ -93,6 +96,26 @@ class GameManager
         $this->db->saveMove($from, $to);
 
         $this->swapPlayers();
+
+        if (WinHelper::isGameOver()) {
+            $this->handleGameOver();
+        }
+    }
+
+    function handleGameOver()
+    {
+        $isTie = WinHelper::gameTied();
+
+        if ($isTie) {
+            self::setError("Game is tied");
+        } else {
+            $winner = WinHelper::getWinner();
+            if ($winner === 0) {
+                self::setError("White player won");
+            } else {
+                self::setError("Black player won");
+            }
+        }
     }
 
     /**
@@ -145,88 +168,16 @@ class GameManager
 
     function pass()
     {
-        if (!$this->hasToPass()) {
+        if (!RuleHelper::hasToPass()) {
+            self::setError("Player can still do a move");
             return;
         }
-
-        error_log('PASSING!!!!!!');
-        error_log('PASSING!!!!!!');
-        error_log('PASSING!!!!!!');
-        error_log('PASSING!!!!!!');
 
         $this->swapPlayers();
         GameManager::setError();
         $this->db->saveMove(null, null);
     }
 
-    private function hasToPass()
-    {
-        $board = $this->getBoard();
-
-        if (count($board) < 2) {
-            return false;
-        }
-        //use moveNotPossible and playNotPossible to check if the player can move or play
-        return $this->moveNotPossible() && $this->playNotPossible();
-    }
-
-    private function moveNotPossible()
-    {
-        $board = $this->getBoard();
-
-        if (count($board) == 0) {
-            return false;
-        }
-
-        $playerTiles = [];
-
-        foreach ($board as $position => $tiles) {
-            foreach ($tiles as $tile) {
-                if ($tile[0] == $this->getPlayer()) {
-                    $playerTiles[] = $position;
-                }
-            }
-        }
-
-        foreach ($playerTiles as $position) {
-            $insect = InsectHelper::getInsectInstance($board[$position][0][1]);
-            $possibleMoves = $insect->getPossibleMoves($board, $position);
-            if (count($possibleMoves) == 0) {
-                return true;
-            }
-        }
-    }
-
-    private function playNotPossible()
-    {
-        $player = $this->getPlayer();
-
-        $hand = $this->getHand($player);
-
-        $tilesOnBoard = [];
-
-        foreach ($this->getBoard() as $position => $tiles) {
-            foreach ($tiles as $tile) {
-                if ($tile[0] == $player) {
-                    $tilesOnBoard[] = $position;
-                }
-            }
-        }
-
-        foreach ($hand as $piece => $count) {
-            if ($count > 0) {
-                foreach ($tilesOnBoard as $position) {
-                    $neighbours = MoveHelper::getNeighbours($position);
-
-                    foreach ($neighbours as $neighbour) {
-                        if (RuleHelper::isValidPlay($piece, $neighbour)) {
-                            return false;
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     /**
      * Gets the board.

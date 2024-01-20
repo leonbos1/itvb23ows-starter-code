@@ -12,7 +12,7 @@ class Ant extends Insect
         if (self::isBlockedByBeetle($board, $from)) {
             return [];
         }
-        
+
         unset($board[$from]);
 
         $visited = [];
