@@ -16,49 +16,68 @@ class RuleHelper
      * 
      * @param string $from The position of the insect to move
      * @param string $to The position to move to
+     * @param array $board The current board state
      * @return bool True if the slide is possible, false otherwise
      */
-    public static function slide($board, $from, $to): bool
-    {
-        if (!self::hasNeighbour($to, $board) || !MoveHelper::isNeighbour($from, $to)) {
+    public static function slide($from, $to, $board) {
+        if (!self::hasValidNeighbour($from, $to, $board)) {
             return false;
         }
-
-        $b = explode(',', $to);
-
-        $common = [];
-        foreach (GameManager::$offsets as $pq) {
-            $p = $b[0] + $pq[0];
-            $q = $b[1] + $pq[1];
-            if (MoveHelper::isNeighbour($from, $p . "," . $q)) {
-                $common[] = $p . "," . $q;
+    
+        list($x, $y) = explode(',', $to);
+        $commonPoints = self::getCommonPoints($x, $y, $from);
+    
+        if (!self::areCommonPointsValid($commonPoints, $board) || !self::isPointValid($from, $board) || !self::isPointValid($to, $board)) {
+            return false;
+        }
+    
+        return self::isMoveLengthValid($commonPoints, $from, $to, $board);
+    }
+    
+    public static function hasValidNeighbour($from, $to, $board) {
+        return self::hasNeighbour($to, $board) && MoveHelper::isNeighbour($from, $to);
+    }
+    
+    public static function getCommonPoints($x, $y, $from) {
+        $commonPoints = [];
+        foreach (GameManager::$offsets as $offset) {
+            $newX = $x + $offset[0];
+            $newY = $y + $offset[1];
+            $point = $newX . "," . $newY;
+            if (MoveHelper::isNeighbour($from, $point)) {
+                $commonPoints[] = $point;
             }
         }
-
-        if (
-            (!isset($board[$common[0]]) || !$board[$common[0]]) &&
-            (!isset($board[$common[1]]) || !$board[$common[1]]) &&
-            (!isset($board[$from]) || !$board[$from]) &&
-            (!isset($board[$to]) || !$board[$to])
-        ) {
-            return false;
-        }
-
-        $firstCommonLen = $board[$common[0]] ?? 0;
-        $firstCommonLen = MoveHelper::len($firstCommonLen);
-
-        $secondCommonLen = $board[$common[1]] ?? 0;
-        $secondCommonLen = MoveHelper::len($secondCommonLen);
-
-        $fromLen = $board[$from] ?? 0;
-        $fromLen = MoveHelper::len($fromLen);
-
-        $toLen = $board[$to] ?? 0;
-        $toLen = MoveHelper::len($toLen);
-
-        return min($firstCommonLen, $secondCommonLen)
-            <= max($fromLen, $toLen);
+        return $commonPoints;
     }
+    
+    public static function areCommonPointsValid($commonPoints, $board) {
+        foreach ($commonPoints as $point) {
+            if (isset($board[$point]) && $board[$point]) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public static function isPointValid($point, $board) {
+        return isset($board[$point]) && $board[$point];
+    }
+    
+    public static function getLength($point, $board) {
+        $length = $board[$point] ?? 0;
+        return MoveHelper::len($length);
+    }
+    
+    public static function isMoveLengthValid($commonPoints, $from, $to, $board) {
+        $firstCommonLen = self::getLength($commonPoints[0], $board);
+        $secondCommonLen = self::getLength($commonPoints[1], $board);
+        $fromLen = self::getLength($from, $board);
+        $toLen = self::getLength($to, $board);
+    
+        return min($firstCommonLen, $secondCommonLen) <= max($fromLen, $toLen);
+    }
+    
 
     public static function tileInHand($board, $player, $from): bool
     {
@@ -156,7 +175,7 @@ class RuleHelper
                 $_SESSION['error'] = "Tile is already taken";
             } elseif (!RuleHelper::hasNeighBour($to, $board) || RuleHelper::hiveWillSplit($board)) {
                 $_SESSION['error'] = "Move would split hive";
-            } elseif (RuleHelper::slide($board, $from, $to)) {
+            } elseif (RuleHelper::slide($from, $to, $board)) {
                 $_SESSION['error'] = "Slide is not allowed";
             } else {
                 return true;

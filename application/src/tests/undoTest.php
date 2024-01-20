@@ -75,8 +75,6 @@ class UndoTest extends TestCase
         $this->gameManager->undo();
         $this->gameManager->play('Q', '1,-2');
 
-        error_log(print_r(GameManager::getBoard(), true));
-
         $piecesOnBoard = count(GameManager::getBoard());
 
         $this->assertEquals(5, $piecesOnBoard);
@@ -99,8 +97,6 @@ class UndoTest extends TestCase
         $this->gameManager->undo();
         $this->gameManager->undo();
 
-        error_log(print_r(GameManager::getBoard(), true));
-
         $piecesOnBoard = count(GameManager::getBoard());
 
         $this->assertEquals(3, $piecesOnBoard);
@@ -122,8 +118,6 @@ class UndoTest extends TestCase
         $this->gameManager->undo();
         $this->gameManager->undo();
         $this->gameManager->undo();
-
-        error_log(print_r(GameManager::getBoard(), true));
 
         $piecesOnBoard = count(GameManager::getBoard());
 
