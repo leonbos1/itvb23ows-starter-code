@@ -1,0 +1,195 @@
+<?php
+
+namespace helpers;
+
+use managers\GameManager;
+use helpers\MoveHelper;
+
+class RuleHelper
+{
+    private function __construct()
+    {
+    }
+
+    /**
+     * Checks if a tile is able to slide from position $from to position $to.
+     * 
+     * @param string $from The position of the insect to move
+     * @param string $to The position to move to
+     * @return bool True if the slide is possible, false otherwise
+     */
+    public static function slide($board, $from, $to): bool
+    {
+        if (!self::hasNeighbour($to, $board) || !MoveHelper::isNeighbour($from, $to)) {
+            return false;
+        }
+
+        $b = explode(',', $to);
+
+        $common = [];
+        foreach (GameManager::$offsets as $pq) {
+            $p = $b[0] + $pq[0];
+            $q = $b[1] + $pq[1];
+            if (MoveHelper::isNeighbour($from, $p . "," . $q)) {
+                $common[] = $p . "," . $q;
+            }
+        }
+
+        if (
+            (!isset($board[$common[0]]) || !$board[$common[0]]) &&
+            (!isset($board[$common[1]]) || !$board[$common[1]]) &&
+            (!isset($board[$from]) || !$board[$from]) &&
+            (!isset($board[$to]) || !$board[$to])
+        ) {
+            return false;
+        }
+
+        $firstCommonLen = $board[$common[0]] ?? 0;
+        $firstCommonLen = MoveHelper::len($firstCommonLen);
+
+        $secondCommonLen = $board[$common[1]] ?? 0;
+        $secondCommonLen = MoveHelper::len($secondCommonLen);
+
+        $fromLen = $board[$from] ?? 0;
+        $fromLen = MoveHelper::len($fromLen);
+
+        $toLen = $board[$to] ?? 0;
+        $toLen = MoveHelper::len($toLen);
+
+        return min($firstCommonLen, $secondCommonLen)
+            <= max($fromLen, $toLen);
+    }
+
+    public static function tileInHand($board, $player, $from): bool
+    {
+        return $board[$from][count($board[$from]) - 1][0] == $player;
+    }
+
+    public static function playerMustPlayQueen($piece, $board, $hand): bool
+    {
+        return $piece != 'Q' && array_sum($hand) <= 8 && $hand['Q'];
+    }
+
+
+    /**
+     * Checks if hive is split when a tile is moved.
+     */
+    public static function hiveWillSplit($board)
+    {
+        $all = array_keys($board);
+        $queue = [array_shift($all)];
+
+        while ($queue) {
+            $next = explode(',', array_shift($queue));
+            foreach (GameManager::$offsets as $pq) {
+                list($p, $q) = $pq;
+                $p += $next[0];
+                $q += $next[1];
+
+                $position = $p . "," . $q;
+
+                if (in_array($position, $all)) {
+                    $queue[] = $position;
+                    $all = array_diff($all, [$position]);
+                }
+            }
+        }
+
+        return $all;
+    }
+
+
+    public static function isValidPlay($piece, $to)
+    {
+        $player = GameManager::getPlayer();
+        $board = GameManager::getBoard();
+        $hand = GameManager::getHand($player);
+
+        if (!$hand[$piece])
+            GameManager::setError("Player does not have tile");
+        elseif (isset($board[$to]))
+            GameManager::setError("Board position is not empty");
+        elseif (count($board) && !self::hasNeighBour($to, $board))
+            GameManager::setError("board position has no neighbour");
+        elseif (array_sum($hand) < 11 && !MoveHelper::neighboursAreSameColor($player, $to, $board))
+            GameManager::setError("Board position has opposing neighbour");
+        elseif (self::playerMustPlayQueen($piece, $board, $hand)) {
+            GameManager::setError("Must play queen bee");
+        } else {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Checks if a given move is valid.
+     * 
+     * @param string $from The position of the insect to move
+     * @param string $to The position to move to
+     * 
+     * @return bool True if the move is valid, false otherwise
+     */
+    public static function isValidMove($from, $to): bool
+    {
+        $board = GameManager::getBoard();
+        $player = GameManager::getPlayer();
+        $hand = GameManager::getHand($player);
+
+        if ($from == $to) {
+            $_SESSION['error'] = 'Tile must move';
+        } elseif (!isset($board[$from])) {
+            $_SESSION['error'] = 'Board position is empty';
+        } elseif (
+            isset($board[$from][count($board[$from]) - 1]) &&
+            $board[$from][count($board[$from]) - 1][0] != $player
+        )
+            $_SESSION['error'] = "Tile is not owned by player";
+        elseif ($hand['Q'])
+            $_SESSION['error'] = "Queen bee is not played";
+        else {
+            $tile = array_pop($board[$from]);
+            unset($board[$from]);
+
+            if (isset($board[$to]) && self::isBeetle($tile)) {
+                $_SESSION['error'] = "Tile is already taken";
+            } elseif (!RuleHelper::hasNeighBour($to, $board) || RuleHelper::hiveWillSplit($board)) {
+                $_SESSION['error'] = "Move would split hive";
+            } elseif (RuleHelper::slide($board, $from, $to)) {
+                $_SESSION['error'] = "Slide is not allowed";
+            } else {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    public static function isBeetle($piece)
+    {
+        return $piece[1] == 'B';
+    }
+
+    /**
+     * Checks if a given position has a neighbour.
+     * 
+     * @param string $position The position to check
+     * @param array $board The current board state
+     * @return bool True if the position has a neighbour, false otherwise
+     */
+    public static function hasNeighbour($position, $board, $exclude = [])
+    {
+        foreach (array_keys($board) as $board_position) {
+            if (in_array($board_position, $exclude)) {
+                continue;
+            }
+            if (MoveHelper::isNeighbour($position, $board_position)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}

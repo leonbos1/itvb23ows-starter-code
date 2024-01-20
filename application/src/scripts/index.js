@@ -9,19 +9,18 @@ window.onload = () => {
 function getPossibleMoves() {
     const fromDropdown = document.getElementById('from-dropdown');
     const toDropdown = document.getElementById('to-dropdown');
+    const submitButton = document.getElementById('move-submit-btn');
 
     var body = {
         from: fromDropdown.value
     };
-
-    console.log(body);
 
     var encodedBody = Object.keys(body).map(function (key) {
         return encodeURIComponent(key) + '=' + encodeURIComponent(body[key]);
     }).join('&');
 
 
-    fetch('rules/getPossibleMoveCoordinates.php', {
+    fetch('endpoints/moveDropdown.php', {
         method: 'POST',
         body: encodedBody,
         headers: {
@@ -31,6 +30,16 @@ function getPossibleMoves() {
         .then(response => response.json())
         .then(data => {
             toDropdown.innerHTML = '';
+            if (data === null || data.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.innerHTML = '';
+                submitButton.disabled = true;
+                toDropdown.appendChild(option);
+                return;
+            }
+            submitButton.disabled = false;
+
             data.forEach(pos => {
                 const option = document.createElement('option');
                 option.value = pos;

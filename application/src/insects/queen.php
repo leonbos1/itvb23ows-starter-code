@@ -1,7 +1,9 @@
 <?php
 
-include_once dirname(__FILE__) . '/../rules/moveHelper.php';
-include_once dirname(__FILE__) . '/../util.php';
+namespace insects;
+
+use helpers\MoveHelper;
+use helpers\RuleHelper;
 
 class Queen implements Insect
 {
@@ -14,10 +16,10 @@ class Queen implements Insect
     function getPossibleMoves($board, $from): array
     {
         $to = [];
-        $neighbours = getNeighbours($from);
+        $neighbours = MoveHelper::getNeighbours($from);
 
         foreach ($neighbours as $neighbour) {
-            if (hasNeighBour($neighbour, $board, [$from]) && !isset($board[$neighbour])) {
+            if (RuleHelper::hasNeighBour($neighbour, $board, [$from]) && !isset($board[$neighbour])) {
                 $to[] = $neighbour;
             }
         }

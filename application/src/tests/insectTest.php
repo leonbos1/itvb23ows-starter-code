@@ -1,21 +1,28 @@
 <?php
 
-require_once './src/insects/insect.php';
-require_once './src/insects/queen.php';
-require_once './src/insects/grasshopper.php';
-require_once './src/insects/beetle.php';
-require_once './src/insects/spider.php';
-require_once './src/insects/ant.php';
+namespace tests;
 
+use insects\Insect;
+use managers\GameManager;
+use PHPUnit\Framework\TestCase;
+use helpers\InsectHelper;
+use mock\MockDatabaseManager;
 
-class InsectTest extends PHPUnit\Framework\TestCase
+class InsectTest extends TestCase
 {
+    private GameManager $gameManager;
+
+    protected function setUp(): void
+    {
+        $this->gameManager = new GameManager(new MockDatabaseManager());
+    }
+    
     public function testValidInsectType()
     {
         $validTypes = ['A', 'B', 'G', 'Q', 'S'];
 
         foreach ($validTypes as $type) {
-            $insect = getInsectInstance($type);
+            $insect = InsectHelper::getInsectInstance($type);
             $this->assertInstanceOf(Insect::class, $insect);
         }
     }
@@ -25,14 +32,14 @@ class InsectTest extends PHPUnit\Framework\TestCase
         $invalidTypes = ['d', '1', '!', ''];
 
         foreach ($invalidTypes as $type) {
-            $insect = getInsectInstance($type);
+            $insect = InsectHelper::getInsectInstance($type);
             $this->assertNull($insect);
         }
     }
 
     public function testLowerCasedInsectType()
     {
-        $insect = getInsectInstance('a');
+        $insect = InsectHelper::getInsectInstance('a');
         $this->assertInstanceOf(Insect::class, $insect);
     }
 }
