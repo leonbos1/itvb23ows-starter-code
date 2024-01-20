@@ -1,15 +1,13 @@
 <?php
-include_once '../util.php';
-include_once '../insects/Insect.php';
-include_once '../insects/Ant.php';
-include_once '../insects/Beetle.php';
-include_once '../insects/Grasshopper.php';
-include_once '../insects/Queen.php';
-include_once '../insects/Spider.php';
 
-session_start();
+namespace endpoints;
 
-$board = $_SESSION['board'];
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use managers\GameManager;
+use helpers\InsectHelper;
+
+$board = GameManager::getBoard();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit(0);
@@ -37,7 +35,13 @@ if (isset($_POST['from'])) {
  */
 function getPossibleMovesInsect($board, $from)
 {
-    $insect_type = getInsectInstance($board[$from][0][1]);
+    $hand = GameManager::getHand(GameManager::getPlayer());
+
+    $queenIsPlaced = $hand['Q'] === 0;
+
+    if (!$queenIsPlaced) return [];
+
+    $insect_type = InsectHelper::getInsectInstance($board[$from][0][1]);
 
     $allowed_moves = $insect_type->getPossibleMoves($board, $from);
 

@@ -1,20 +1,26 @@
 <?php
+
+require_once 'vendor/autoload.php';
+
 session_start();
 
-include_once './util.php';
-include_once './rules/moveHelper.php';
+use managers\GameManager;
+use managers\DatabaseManager;
+use helpers\MoveHelper;
+use helpers\RuleHelper;
 
-if (!isset($_SESSION['board'])) {
-    header('Location: restart.php');
-    exit(0);
+$board = GameManager::getBoard();
+$player = GameManager::getPlayer();
+$hand = GameManager::getHand();
+
+$gameManager = new GameManager();
+
+if (!isset($board)) {
+    $gameManager->restart();
 }
-$board = $_SESSION['board'];
-// $board = ['0,0' => [['0', 'Q']]];
-$player = $_SESSION['player'];
-$hand = $_SESSION['hand'];
 
 $to = [];
-foreach ($GLOBALS['OFFSETS'] as $pq) {
+foreach (GameManager::$offsets as $pq) {
     foreach (array_keys($board) as $pos) {
         $pq2 = explode(',', $pos);
         $to[] = ($pq[0] + $pq2[0]) . ',' . ($pq[1] + $pq2[1]);
@@ -92,7 +98,7 @@ if (!count($to))
         else
             echo "Black"; ?>
     </div>
-    <form method="post" action="play.php">
+    <form method="post" action="action.php">
         <p>New Insect</p>
         <label for="piece">Piece:</label>
         <select name="piece">
@@ -107,20 +113,21 @@ if (!count($to))
         <label for="to">To:</label>
         <select name="to">
             <?php
-            foreach (getPossiblePlacements($board, $player) as $pos) {
+            foreach (MoveHelper::getPossiblePlacements($board, $player) as $pos) {
                 echo "<option value=\"$pos\">$pos</option>";
             }
             ?>
         </select>
+        <input type="hidden" name="action" value="play">
         <input type="submit" value="Play">
     </form>
-    <form method="post" action="move.php">
+    <form method="post" action="action.php">
         <p>Move</p>
         <label for="from">From:</label>
         <select name="from" id="from-dropdown">
             <?php
             foreach (array_keys($board) as $pos) {
-                if (tileInHand($board, $player, $pos)) {
+                if (RuleHelper::tileInHand($board, $player, $pos)) {
                     echo "<option value=\"$pos\">$pos</option>";
                 }
             }
@@ -132,37 +139,44 @@ if (!count($to))
             foreach ($to as $pos) {
                 if (isset($board[$pos]))
                     continue;
-                if (hasNeighbour($pos, $board) && neighboursAreSameColor($player, $pos, $board)) {
+                if (RuleHelper::hasNeighbour($pos, $board) && MoveHelper::neighboursAreSameColor($player, $pos, $board)) {
                     echo "<option value=\"$pos\">$pos</option>";
                 }
             }
             ?>
         </select>
-        <input type="submit" value="Move">
+        <input type="hidden" name="action" value="move">
+        <input type="submit" id="move-submit-btn" value="Move">
     </form>
-    <form method="post" action="pass.php">
+    <form method="post" action="action.php">
+        <input type="hidden" name="action" value="pass">
         <input type="submit" value="Pass">
     </form>
-    <form method="post" action="restart.php">
+    <form method="post" action="action.php">
+        <input type="hidden" name="action" value="restart">
         <input type="submit" value="Restart">
     </form>
     <strong>
-        <?php if (isset($_SESSION['error']))
-            echo ($_SESSION['error']);
-        unset($_SESSION['error']); ?>
+        <?php
+        $error = $gameManager->getError();
+        if (isset($error))
+            echo $error;
+        $gameManager->setError();
+        ?>
     </strong>
     <ol>
         <?php
-        $db = include 'database.php';
-        $stmt = $db->prepare('SELECT * FROM moves WHERE game_id = ' . $_SESSION['game_id']);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $db = DatabaseManager::getInstance();
+
+        $result = $db->getAllMoves();
+
         while ($row = $result->fetch_array()) {
             echo '<li>' . $row[2] . ' ' . $row[3] . ' ' . $row[4] . '</li>';
         }
         ?>
     </ol>
-    <form method="post" action="undo.php">
+    <form method="post" action="action.php">
+        <input type="hidden" name="action" value="undo">
         <input type="submit" value="Undo">
     </form>
 </body>
