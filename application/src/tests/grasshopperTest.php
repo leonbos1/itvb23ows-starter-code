@@ -29,6 +29,8 @@ class grasshopperTest extends TestCase
 
         $this->assertEquals(count(GameManager::getBoard()), 5);
 
+        error_log(print_r(GameManager::getBoard(), true));
+
         $this->assertArrayNotHasKey('0,0', GameManager::getBoard());
         $this->assertArrayHasKey('2,0', GameManager::getBoard());
         $this->assertEquals(GameManager::getBoard()['2,0'][0][1], 'G');
@@ -71,6 +73,35 @@ class grasshopperTest extends TestCase
 
         $this->assertEquals(count(GameManager::getBoard()), 5);
         $this->assertArrayNotHasKey('0,3', GameManager::getBoard());
+        $this->assertArrayHasKey('0,0', GameManager::getBoard());
+        $this->assertEquals(GameManager::getBoard()['0,0'][0][1], 'G');
+        $this->assertEquals(GameManager::getBoard()['0,0'][0][0], 0);
+    }
+
+    public function testNotJumpOntoAnotherTile() {
+        $this->gameManager->play('G', '0,0');
+        $this->gameManager->play('Q', '-1,0');
+        $this->gameManager->play('Q', '0,1');
+        $this->gameManager->move('0,0', '0,1');
+
+        $this->assertArrayHasKey('0,0', GameManager::getBoard());
+        $this->assertArrayHasKey('0,1', GameManager::getBoard());
+        $this->assertEquals(GameManager::getBoard()['0,0'][0][1], 'G');
+        $this->assertEquals(GameManager::getBoard()['0,0'][0][0], 0);
+        $this->assertEquals(GameManager::getBoard()['0,1'][0][1], 'Q');
+        $this->assertEquals(GameManager::getBoard()['0,1'][0][0], 0);
+    }
+
+    public function testJumpAtleastOver1Tile() {
+        $this->gameManager->play('G', '0,0');
+        $this->gameManager->play('Q', '-1,0');
+        $this->gameManager->play('Q', '0,1');
+        $this->gameManager->play('A', '-2,0');
+        $this->gameManager->move('0,1', '-1,1');
+        $this->gameManager->play('A', '-3,0');
+        $this->gameManager->move('0,0', '0,-1');
+
+        $this->assertArrayNotHasKey('0,-1', GameManager::getBoard());
         $this->assertArrayHasKey('0,0', GameManager::getBoard());
         $this->assertEquals(GameManager::getBoard()['0,0'][0][1], 'G');
         $this->assertEquals(GameManager::getBoard()['0,0'][0][0], 0);
