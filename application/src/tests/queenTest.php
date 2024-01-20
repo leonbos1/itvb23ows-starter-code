@@ -7,7 +7,7 @@ use mock\MockDatabaseManager;
 use PHPUnit\Framework\TestCase;
 use insects\Queen;
 
-class queenTest extends TestCase
+class QueenTest extends TestCase
 {
     private GameManager $gameManager;
 

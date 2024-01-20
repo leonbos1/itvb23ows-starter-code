@@ -7,7 +7,7 @@ use managers\GameManager;
 use mock\MockDatabaseManager;
 use PHPUnit\Framework\TestCase;
 
-class neighboursTest extends TestCase
+class NeighboursTest extends TestCase
 {
     private GameManager $gameManager;
 

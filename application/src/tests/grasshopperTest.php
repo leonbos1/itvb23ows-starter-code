@@ -6,7 +6,7 @@ use managers\GameManager;
 use mock\MockDatabaseManager;
 use PHPUnit\Framework\TestCase;
 
-class grasshopperTest extends TestCase
+class GrasshopperTest extends TestCase
 {
     private GameManager $gameManager;
 
@@ -28,8 +28,6 @@ class grasshopperTest extends TestCase
         $this->gameManager->move('0,0', '2,0');
 
         $this->assertEquals(count(GameManager::getBoard()), 5);
-
-        error_log(print_r(GameManager::getBoard(), true));
 
         $this->assertArrayNotHasKey('0,0', GameManager::getBoard());
         $this->assertArrayHasKey('2,0', GameManager::getBoard());
