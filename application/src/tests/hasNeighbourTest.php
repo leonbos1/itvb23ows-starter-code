@@ -19,11 +19,11 @@ class hasNeighbourTest extends TestCase
     public function testHasNeighbour()
     {
         $this->gameManager->play('Q', '0,0');
-        $this->gameManager->play('A', '0,1');
-        $this->gameManager->play('Q', '1,-1');
+        $this->gameManager->play('Q', '0,1');
+        $this->gameManager->play('A', '1,-1');
         $this->gameManager->play('A', '-1,2');
 
-        $hasNeighbour = RuleHelper::hasNeighbour('0,-1', GameManager::getBoard());
+        $hasNeighbour = RuleHelper::hasNeighbour('0,0', GameManager::getBoard());
 
         $this->assertTrue($hasNeighbour);
     }
