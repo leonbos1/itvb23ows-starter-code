@@ -69,7 +69,7 @@ class GameManager
         $board = $this->getBoard();
 
         $tile = array_pop($board[$from]);
-
+        
         unset($board[$from]);
 
         $board[$to] = [$tile];

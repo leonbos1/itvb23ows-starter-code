@@ -2,6 +2,7 @@
 
 namespace helpers;
 
+use insects\Grasshopper;
 use managers\GameManager;
 use helpers\MoveHelper;
 
@@ -19,26 +20,29 @@ class RuleHelper
      * @param array $board The current board state
      * @return bool True if the slide is possible, false otherwise
      */
-    public static function slide($from, $to, $board) {
+    public static function slide($from, $to, $board)
+    {
         if (!self::hasValidNeighbour($from, $to, $board)) {
             return false;
         }
-    
+
         list($x, $y) = explode(',', $to);
         $commonPoints = self::getCommonPoints($x, $y, $from);
-    
+
         if (!self::areCommonPointsValid($commonPoints, $board) || !self::isPointValid($from, $board) || !self::isPointValid($to, $board)) {
             return false;
         }
-    
+
         return self::isMoveLengthValid($commonPoints, $from, $to, $board);
     }
-    
-    public static function hasValidNeighbour($from, $to, $board) {
+
+    public static function hasValidNeighbour($from, $to, $board)
+    {
         return self::hasNeighbour($to, $board) && MoveHelper::isNeighbour($from, $to);
     }
-    
-    public static function getCommonPoints($x, $y, $from) {
+
+    public static function getCommonPoints($x, $y, $from)
+    {
         $commonPoints = [];
         foreach (GameManager::$offsets as $offset) {
             $newX = $x + $offset[0];
@@ -50,8 +54,9 @@ class RuleHelper
         }
         return $commonPoints;
     }
-    
-    public static function areCommonPointsValid($commonPoints, $board) {
+
+    public static function areCommonPointsValid($commonPoints, $board)
+    {
         foreach ($commonPoints as $point) {
             if (isset($board[$point]) && $board[$point]) {
                 return true;
@@ -59,25 +64,28 @@ class RuleHelper
         }
         return false;
     }
-    
-    public static function isPointValid($point, $board) {
+
+    public static function isPointValid($point, $board)
+    {
         return isset($board[$point]) && $board[$point];
     }
-    
-    public static function getLength($point, $board) {
+
+    public static function getLength($point, $board)
+    {
         $length = $board[$point] ?? 0;
         return MoveHelper::len($length);
     }
-    
-    public static function isMoveLengthValid($commonPoints, $from, $to, $board) {
+
+    public static function isMoveLengthValid($commonPoints, $from, $to, $board)
+    {
         $firstCommonLen = self::getLength($commonPoints[0], $board);
         $secondCommonLen = self::getLength($commonPoints[1], $board);
         $fromLen = self::getLength($from, $board);
         $toLen = self::getLength($to, $board);
-    
+
         return min($firstCommonLen, $secondCommonLen) <= max($fromLen, $toLen);
     }
-    
+
 
     public static function tileInHand($board, $player, $from): bool
     {
@@ -177,6 +185,14 @@ class RuleHelper
                 $_SESSION['error'] = "Move would split hive";
             } elseif (RuleHelper::slide($from, $to, $board)) {
                 $_SESSION['error'] = "Slide is not allowed";
+            } elseif ($tile[1] == 'G') {
+                $gh = new Grasshopper();
+                $validMoves = $gh->getPossibleMoves($board, $from);
+                if (!in_array($to, $validMoves)) {
+                    $_SESSION['error'] = "Grasshopper cannot jump";
+                } else {
+                    return true;
+                }
             } else {
                 return true;
             }
