@@ -106,7 +106,7 @@ class DatabaseManager implements IDataBaseManager
 
         $stmt->execute();
 
-        return $stmt->get_result();
+        return $stmt->get_result()->fetch_array();
     }
 
     /**

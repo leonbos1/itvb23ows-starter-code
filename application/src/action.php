@@ -8,6 +8,7 @@ use buttons\PlayButton;
 use buttons\RestartButton;
 use buttons\UndoButton;
 use buttons\MoveButton;
+use buttons\AiButton;
 
 $gameManager = new GameManager();
 
@@ -22,7 +23,8 @@ $mappings = [
     'pass' => new PassButton($gameManager),
     'restart' => new RestartButton($gameManager),
     'undo' => new UndoButton($gameManager),
-    'move' => new MoveButton($gameManager)
+    'move' => new MoveButton($gameManager),
+    'ai' => new AiButton($gameManager),
 ];
 
 isset($mappings[$action]) ? $mappings[$action]->execute() : exit("Invalid action");

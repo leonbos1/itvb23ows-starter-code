@@ -5,6 +5,7 @@ namespace managers;
 use base\IDataBaseManager;
 use helpers\RuleHelper;
 use helpers\WinHelper;
+use mysqli;
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -13,6 +14,7 @@ if (session_status() == PHP_SESSION_NONE) {
 class GameManager
 {
     private IDatabaseManager $db;
+    private AiManager $aiManager;
     public static $offsets = [[0, 1], [0, -1], [1, 0], [-1, 0], [-1, 1], [1, -1]];
 
     function __construct(IDatabaseManager $db = null)
@@ -22,6 +24,33 @@ class GameManager
         }
 
         $this->db = $db;
+        $this->aiManager = new AiManager();
+        $this->restart();
+    }
+
+    function getAiMove()
+    {
+        $moveNumber = 0;
+
+        $allMoves = $this->db->getAllMoves();
+
+        if ($allMoves) {
+            $moveNumber = count($allMoves);
+        }
+
+        $results = $this->aiManager->getMove($moveNumber, $this->getHand(), $this->getBoard());
+
+        if (!$results) {
+            return;
+        }
+
+        if ($results[0] == "play") {
+            $this->play($results[1], $results[2]);
+        } elseif ($results[0] == "move") {
+            $this->move($results[1], $results[2]);
+        } elseif ($results[0] == "pass") {
+            $this->pass();
+        }
     }
 
     /**
@@ -74,8 +103,6 @@ class GameManager
         $board = $this->getBoard();
 
         $tile = array_pop($board[$from]);
-        // error_log("HIER LEON");
-        // error_log(count($board[$from]));
 
         if (count($board[$from]) == 0) {
             unset($board[$from]);

@@ -33,5 +33,11 @@ services:
     ports:
       - "9000:9000"
 
+  ai:
+    build: ./ai/
+    container_name: hive-ai
+    ports:
+      - "5000:5000"
+
 volumes:
   hive-volume:

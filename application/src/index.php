@@ -153,6 +153,10 @@ if (!count($to))
         <input type="submit" value="Pass">
     </form>
     <form method="post" action="action.php">
+        <input type="hidden" name="action" value="ai">
+        <input type="submit" value="Ai Move">
+    </form>
+    <form method="post" action="action.php">
         <input type="hidden" name="action" value="restart">
         <input type="submit" value="Restart">
     </form>
